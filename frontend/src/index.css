@@ -1,0 +1,24 @@
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set a nice background color */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7; /* Pastel-like soft background */
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Ensure the app container is centered */
+#root {
+  width: 100%;
+  max-width: 1200px;
+}
+
