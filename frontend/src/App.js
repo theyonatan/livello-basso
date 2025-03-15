@@ -81,7 +81,6 @@ function BoardPage({ darkMode, toggleDarkMode }) {
   const [board, dispatch] = useReducer(boardReducer, null);
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
   const [selectedCard, setSelectedCard] = useState(null);
-  const [showAlerts, setShowAlerts] = useState(false);
   const [filterMembers, setFilterMembers] = useState([]);
 
   useEffect(() => {
@@ -92,6 +91,7 @@ function BoardPage({ darkMode, toggleDarkMode }) {
 
     socket.emit('joinBoard', id);
     socket.on('boardUpdated', (newBoard) => {
+      console.log('Received boardUpdated event');
       dispatch({ type: 'SET_BOARD', payload: newBoard });
     });
 
@@ -149,7 +149,7 @@ function BoardPage({ darkMode, toggleDarkMode }) {
     <BoardContext.Provider value={{ board, socket, userName }}>
       <div className="board-page">
         <header>
-          <h1>Tre picchi del livello basso</h1>
+          <h1>{board.name}</h1>
           <input
             type="text"
             placeholder="Enter your name"
@@ -159,16 +159,15 @@ function BoardPage({ darkMode, toggleDarkMode }) {
           <button onClick={toggleDarkMode}>{darkMode ? 'Light Mode' : 'Dark Mode'}</button>
           <button onClick={downloadJson}>Download JSON</button>
           <input type="file" accept=".json" onChange={uploadJson} style={{ display: 'inline' }} />
-          <button onClick={() => setShowAlerts(!showAlerts)}>
-            {showAlerts ? 'Hide Alerts' : 'Show Alerts'}
-          </button>
         </header>
         <DragDropContext onDragEnd={handleDragEnd}>
           <ListContainer filterMembers={filterMembers} setSelectedCard={setSelectedCard} />
         </DragDropContext>
-        <MemberEditor />
-        <Filters setFilterMembers={setFilterMembers} />
-        {showAlerts && <AlertsTab />}
+        <div className="sidebar">
+          <MemberEditor />
+          <Filters setFilterMembers={setFilterMembers} />
+          <AlertsTab />
+        </div>
         {selectedCard && (
           <CardDetails card={selectedCard} close={() => setSelectedCard(null)} />
         )}
@@ -179,104 +178,84 @@ function BoardPage({ darkMode, toggleDarkMode }) {
 
 function ListContainer({ filterMembers, setSelectedCard }) {
   const { board, socket, userName } = useContext(BoardContext);
+  const [newListTitle, setNewListTitle] = useState('');
 
   const addList = () => {
     if (!userName) return alert('Please enter your name to edit');
-    const name = prompt('Enter list name');
-    if (name) socket.emit('addList', { boardId: board._id, name }, (newList) => {});
+    socket.emit('addList', { boardId: board._id, title: newListTitle || 'New List' }, () => setNewListTitle(''));
   };
 
   return (
-    <Droppable droppableId="board" type="LIST" direction="horizontal">
+    <Droppable droppableId="lists" direction="horizontal" type="LIST">
       {(provided) => (
-        <div
-          className="list-container"
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-        >
-          {board.lists.map((list, index) => (
-            <List
-              key={list._id}
-              list={list}
-              index={index}
-              filterMembers={filterMembers}
-              setSelectedCard={setSelectedCard}
-            />
+        <div className="list-container" ref={provided.innerRef} {...provided.droppableProps}>
+          {board.lists.filter(list => 
+            !filterMembers.length || list.cards.some(card => 
+              card.assignedMembers.some(m => filterMembers.includes(m))
+            )
+          ).map((list, index) => (
+            <List key={list._id} list={list} index={index} setSelectedCard={setSelectedCard} />
           ))}
           {provided.placeholder}
-          <button className="add-list-btn" onClick={addList}>+ Add List</button>
+          <div className="list add-list">
+            <input
+              type="text"
+              placeholder="New List Title"
+              value={newListTitle}
+              onChange={e => setNewListTitle(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && addList()}
+            />
+            <button onClick={addList}>Add List</button>
+          </div>
         </div>
       )}
     </Droppable>
   );
 }
 
-function List({ list, index, filterMembers, setSelectedCard }) {
+function List({ list, index, setSelectedCard }) {
   const { board, socket, userName } = useContext(BoardContext);
+  const [newCardTitle, setNewCardTitle] = useState('');
 
   const addCard = () => {
     if (!userName) return alert('Please enter your name to edit');
-    const title = prompt('Enter card title');
-    if (title) socket.emit('addCard', { boardId: board._id, listId: list._id, title }, (newCard) => {});
-  };
-
-  const renameList = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    const newName = prompt('Enter new list name', list.name);
-    if (newName) socket.emit('renameList', { boardId: board._id, listId: list._id, name: newName });
-  };
-
-  const removeList = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (window.confirm('Are you sure you want to delete this list?')) {
-      socket.emit('removeList', { boardId: board._id, listId: list._id });
-    }
+    socket.emit('addCard', { boardId: board._id, listId: list._id, title: newCardTitle || 'New Card' }, () => setNewCardTitle(''));
   };
 
   return (
-    <Draggable draggableId={list._id} index={index}>
+    <Draggable draggableId={list._id} index={index} type="LIST">
       {(provided) => (
-        <div
-          className="list"
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-        >
-          <div className="list-header">
-            <h3 onClick={renameList}>{list.name}</h3>
-            <button onClick={removeList}>X</button>
-          </div>
+        <div className="list" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <h2>{list.title}</h2>
           <Droppable droppableId={list._id} type="CARD">
             {(provided) => (
-              <div
-                className="card-container"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {list.cards
-                  .filter(card => filterMembers.length === 0 || card.assignedMembers.some(m => filterMembers.includes(m)))
-                  .map((card, idx) => (
-                    <Card key={card._id} card={card} index={idx} listId={list._id} setSelectedCard={setSelectedCard} />
-                  ))}
+              <div className="cards" ref={provided.innerRef} {...provided.droppableProps}>
+                {list.cards.map((card, idx) => (
+                  <Card key={card._id} card={card} index={idx} setSelectedCard={setSelectedCard} />
+                ))}
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
-          <button className="add-card-btn" onClick={addCard}>+ Add Card</button>
+          <input
+            type="text"
+            placeholder="New Card Title"
+            value={newCardTitle}
+            onChange={e => setNewCardTitle(e.target.value)}
+            onKeyPress={e => e.key === 'Enter' && addCard()}
+          />
+          <button onClick={addCard}>Add Card</button>
         </div>
       )}
     </Draggable>
   );
 }
 
-function Card({ card, index, listId, setSelectedCard }) {
-  const { board, socket, userName } = useContext(BoardContext);
+function Card({ card, index, setSelectedCard }) {
+  const { socket, board } = useContext(BoardContext);
 
   const deleteCard = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (window.confirm('Are you sure you want to delete this card?')) {
-      socket.emit('deleteCard', { boardId: board._id, listId, cardId: card._id });
-    }
+    socket.emit('deleteCard', { boardId: board._id, listId: card.listId, cardId: card._id });
   };
 
   return (
@@ -287,10 +266,10 @@ function Card({ card, index, listId, setSelectedCard }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => setSelectedCard({ ...card, listId })}
+          onClick={() => setSelectedCard(card)}
         >
-          <span>{card.title}</span>
-          <button onClick={(e) => { e.stopPropagation(); deleteCard(); }}>X</button>
+          {card.title}
+          <button onClick={deleteCard}>X</button>
         </div>
       )}
     </Draggable>
@@ -298,159 +277,36 @@ function Card({ card, index, listId, setSelectedCard }) {
 }
 
 function CardDetails({ card, close }) {
-  const { board, socket, userName } = useContext(BoardContext);
-  const [title, setTitle] = useState(card.title);
+  const { socket, board, userName } = useContext(BoardContext);
   const [description, setDescription] = useState(card.description);
-  const [labels, setLabels] = useState(card.labels);
-  const [assignedMembers, setAssignedMembers] = useState(card.assignedMembers);
   const [comment, setComment] = useState('');
-  const [newSubtask, setNewSubtask] = useState('');
-
-  const saveChanges = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    socket.emit('editCard', {
-      boardId: board._id,
-      listId: card.listId,
-      cardId: card._id,
-      updates: { title, description, labels, assignedMembers },
-      userName
-    });
-  };
 
   const addComment = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (comment) {
-      socket.emit('addComment', { boardId: board._id, listId: card.listId, cardId: card._id, userName, message: comment });
-      setComment('');
-    }
+    if (!userName) return alert('Please enter your name to comment');
+    socket.emit('addComment', { boardId: board._id, cardId: card._id, userName, text: comment });
+    setComment('');
   };
 
-  const addSubtask = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (newSubtask) {
-      socket.emit('addSubtask', { boardId: board._id, listId: card.listId, cardId: card._id, title: newSubtask }, () => {
-        setNewSubtask('');
-      });
-    }
-  };
-
-  const toggleSubtask = (subtaskId) => {
-    if (!userName) return alert('Please enter your name to edit');
-    socket.emit('toggleSubtask', { boardId: board._id, listId: card.listId, cardId: card._id, subtaskId });
-  };
-
-  const renameSubtask = (subtaskId, currentTitle) => {
-    if (!userName) return alert('Please enter your name to edit');
-    const newTitle = prompt('Enter new subtask title', currentTitle);
-    if (newTitle) {
-      socket.emit('renameSubtask', { boardId: board._id, listId: card.listId, cardId: card._id, subtaskId, title: newTitle });
-    }
-  };
-
-  const deleteSubtask = (subtaskId) => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (window.confirm('Are you sure you want to delete this subtask?')) {
-      socket.emit('deleteSubtask', { boardId: board._id, listId: card.listId, cardId: card._id, subtaskId });
-    }
-  };
-
-  const addAttachment = (e) => {
-    if (!userName) return alert('Please enter your name to edit');
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
-    fetch('https://livello-basso-production.up.railway.app/api/upload', {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => res.json())
-      .then(data => {
-        socket.emit('editCard', {
-          boardId: board._id,
-          listId: card.listId,
-          cardId: card._id,
-          updates: { attachments: [...card.attachments, data.url] },
-          userName
-        });
-      })
-      .catch(err => console.error('Error uploading attachment:', err));
+  const updateDescription = () => {
+    socket.emit('updateCard', { boardId: board._id, cardId: card._id, updates: { description } });
   };
 
   return (
-    <div className="modal" onClick={close}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h2>
-          <input value={title} onChange={e => setTitle(e.target.value)} onBlur={saveChanges} />
-        </h2>
-        <textarea
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          onBlur={saveChanges}
-          placeholder="Add a description"
+    <div className="modal">
+      <div className="modal-content">
+        <h2>{card.title}</h2>
+        <textarea value={description} onChange={e => setDescription(e.target.value)} onBlur={updateDescription} />
+        <h3>Comments</h3>
+        {card.comments.map((c, idx) => (
+          <p key={idx}>{c.userName}: {c.text} <small>{new Date(c.timestamp).toLocaleString()}</small></p>
+        ))}
+        <input
+          type="text"
+          value={comment}
+          onChange={e => setComment(e.target.value)}
+          onKeyPress={e => e.key === 'Enter' && addComment()}
         />
-        <div>
-          <h3>Labels</h3>
-          <input
-            type="text"
-            value={labels.join(',')}
-            onChange={e => setLabels(e.target.value.split(','))}
-            onBlur={saveChanges}
-          />
-        </div>
-        <div>
-          <h3>Assigned Members</h3>
-          <select
-            multiple
-            value={assignedMembers}
-            onChange={e => setAssignedMembers([...e.target.selectedOptions].map(o => o.value))}
-            onBlur={saveChanges}
-          >
-            {board.members.map(member => (
-              <option key={member._id} value={member._id}>{member.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <h3>Attachments</h3>
-          <input type="file" onChange={addAttachment} />
-          {card.attachments.map((url, idx) => (
-            <img key={idx} src={`https://livello-basso-production.up.railway.app${url}`} alt="Attachment" className="attachment" />
-          ))}
-        </div>
-        <div>
-          <h3>Subtasks</h3>
-          {card.subtasks.map(subtask => (
-            <div key={subtask._id}>
-              <input
-                type="checkbox"
-                checked={subtask.completed}
-                onChange={() => toggleSubtask(subtask._id)}
-              />
-              <span onClick={() => renameSubtask(subtask._id, subtask.title)}>{subtask.title}</span>
-              <button onClick={() => deleteSubtask(subtask._id)}>X</button>
-            </div>
-          ))}
-          <input
-            value={newSubtask}
-            onChange={e => setNewSubtask(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && addSubtask()}
-            placeholder="Add subtask"
-          />
-        </div>
-        <div>
-          <h3>Comments</h3>
-          {card.comments.map((c, idx) => (
-            <p key={idx}><strong>{c.userName}:</strong> {c.message} <small>{new Date(c.timestamp).toLocaleString()}</small></p>
-          ))}
-          <textarea value={comment} onChange={e => setComment(e.target.value)} />
-          <button onClick={addComment}>Add Comment</button>
-        </div>
-        <div>
-          <h3>Activity Log</h3>
-          {card.activityLog.map((log, idx) => (
-            <p key={idx}>{log.message} <small>{new Date(log.timestamp).toLocaleString()}</small></p>
-          ))}
-        </div>
+        <button onClick={addComment}>Add Comment</button>
         <button onClick={close}>Close</button>
       </div>
     </div>
@@ -459,60 +315,33 @@ function CardDetails({ card, close }) {
 
 function MemberEditor() {
   const { board, socket, userName } = useContext(BoardContext);
+  const [newMember, setNewMember] = useState('');
 
   const addMember = () => {
     if (!userName) return alert('Please enter your name to edit');
-    const name = prompt('Enter member name');
-    if (name) socket.emit('addMember', { boardId: board._id, name }, (newMember) => {});
+    socket.emit('addMember', { boardId: board._id, member: newMember });
+    setNewMember('');
   };
 
-  const renameMember = (memberId, currentName) => {
-    if (!userName) return alert('Please enter your name to edit');
-    const newName = prompt('Enter new name', currentName);
-    if (newName) socket.emit('renameMember', { boardId: board._id, memberId, name: newName });
-  };
-
-  const removeMember = (memberId) => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (window.confirm('Are you sure you want to remove this member?')) {
-      socket.emit('removeMember', { boardId: board._id, memberId });
-    }
+  const removeMember = (member) => {
+    socket.emit('removeMember', { boardId: board._id, member });
   };
 
   return (
     <div className="member-editor">
-      <h2>Members</h2>
-      <button onClick={addMember}>+ Add Member</button>
-      {board.members.map(member => (
-        <div key={member._id}>
-          <span onClick={() => renameMember(member._id, member.name)}>{member.name}</span>
-          <button onClick={() => removeMember(member._id)}>X</button>
+      <h3>Members</h3>
+      {board.members.map((m, idx) => (
+        <div key={idx} className="member">
+          {m} <button onClick={() => removeMember(m)}>X</button>
         </div>
       ))}
-    </div>
-  );
-}
-
-function AlertsTab() {
-  const { board, socket, userName } = useContext(BoardContext);
-  const [message, setMessage] = useState('');
-
-  const addAlert = () => {
-    if (!userName) return alert('Please enter your name to edit');
-    if (message) {
-      socket.emit('addAlert', { boardId: board._id, userName, message });
-      setMessage('');
-    }
-  };
-
-  return (
-    <div className="alerts-tab">
-      <h2>Alerts</h2>
-      <textarea value={message} onChange={e => setMessage(e.target.value)} />
-      <button onClick={addAlert}>Add Alert</button>
-      {board.alerts.map(alert => (
-        <p key={alert._id}><strong>{alert.userName}:</strong> {alert.message} <small>{new Date(alert.timestamp).toLocaleString()}</small></p>
-      ))}
+      <input
+        type="text"
+        value={newMember}
+        onChange={e => setNewMember(e.target.value)}
+        onKeyPress={e => e.key === 'Enter' && addMember()}
+      />
+      <button onClick={addMember}>Add Member</button>
     </div>
   );
 }
@@ -522,12 +351,41 @@ function Filters({ setFilterMembers }) {
 
   return (
     <div className="filters">
-      <h2>Filter by Members</h2>
+      <h3>Filter by Member</h3>
       <select multiple onChange={e => setFilterMembers([...e.target.selectedOptions].map(o => o.value))}>
-        {board.members.map(member => (
-          <option key={member._id} value={member._id}>{member.name}</option>
+        {board.members.map((m, idx) => (
+          <option key={idx} value={m}>{m}</option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function AlertsTab() {
+  const { board, socket, userName } = useContext(BoardContext);
+  const [message, setMessage] = useState('');
+
+  const addAlert = () => {
+    if (!userName) return alert('Please enter your name to post alerts');
+    socket.emit('addAlert', { boardId: board._id, userName, message });
+    setMessage('');
+  };
+
+  return (
+    <div className="alerts-tab">
+      <h3>Alerts</h3>
+      <div className="alerts-list">
+        {board.alerts.map((a, idx) => (
+          <p key={idx}>{a.userName}: {a.message} <small>{new Date(a.timestamp).toLocaleString()}</small></p>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={message}
+        onChange={e => setMessage(e.target.value)}
+        onKeyPress={e => e.key === 'Enter' && addAlert()}
+      />
+      <button onClick={addAlert}>Post Alert</button>
     </div>
   );
 }
