@@ -7,6 +7,7 @@ const io = socketIo(server);
 
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 
 let boards = {};
