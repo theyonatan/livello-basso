@@ -5,7 +5,7 @@ function App() {
   const [board, setBoard] = useState(null);
 
   useEffect(() => {
-    fetch('https://livello-basso-production.up.railway.app/api/board')
+    fetch('https://cors-anywhere.herokuapp.com/https://livello-basso-production.up.railway.app/api/board')
       .then(response => response.json())
       .then(data => setBoard(data))
       .catch(err => console.error(err));
@@ -18,7 +18,7 @@ function App() {
     const badge = prompt("Enter badge (C, CPP, or Other):", "C");
     const cardData = { columnId, title, description, badge };
 
-    const res = await fetch('https://livello-basso-production.up.railway.app/api/cards', {
+    const res = await fetch('https://cors-anywhere.herokuapp.com/https://livello-basso-production.up.railway.app/api/cards', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardData)
