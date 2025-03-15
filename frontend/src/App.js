@@ -57,7 +57,7 @@ function Home() {
 
   return (
     <div className="home">
-      <h1>Tre picchi del livello basso</h1>
+      <h1>Dare fede al livello basso</h1>
       <input
         type="text"
         placeholder="New Board Name"
@@ -277,6 +277,7 @@ function CardDetails({ card, close }) {
 
   const addComment = () => {
     if (!userName) return alert('Please enter your name to comment');
+    if (!comment) return alert('Please enter a comment');
     socket.emit('addComment', { boardId: board._id, cardId: card._id, userName, text: comment });
     setComment('');
   };

@@ -2,14 +2,9 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23000" stroke-width="2"/></svg>');
-  background-repeat: repeat;
+  background-color: #ffffff;
   margin: 0;
   padding: 0;
-}
-
-.dark body {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23333"/><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23fff" stroke-width="2"/></svg>');
 }
 
 h1, h2, h3, button {
@@ -102,6 +97,7 @@ header input[type="text"] {
 }
 
 .list .cards {
+  min-height: 100px; /* Fix for dragging to empty lists */
   max-height: 500px;
   overflow-y: auto;
 }

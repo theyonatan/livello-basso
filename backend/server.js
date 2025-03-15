@@ -90,6 +90,30 @@ io.on('connection', (socket) => {
     io.to(boardId).emit('boardUpdated', board);
     if (callback) callback(newList);
   });
+  socket.on('addComment', ({ boardId, cardId, userName, text }) => {
+    const board = boards[boardId];
+    if (!board) return;
+    for (const list of board.lists) {
+      const card = list.cards.find(c => c._id === cardId);
+      if (card) {
+        card.comments.push({ userName, text, timestamp: Date.now() });
+        io.to(boardId).emit('boardUpdated', board);
+        return;
+      }
+    }
+  });
+  socket.on('updateCard', ({ boardId, cardId, updates }) => {
+    const board = boards[boardId];
+    if (!board) return;
+    for (const list of board.lists) {
+      const card = list.cards.find(c => c._id === cardId);
+      if (card) {
+        Object.assign(card, updates);
+        io.to(boardId).emit('boardUpdated', board);
+        return;
+      }
+    }
+  });
 });
 
 const PORT = 3000;
