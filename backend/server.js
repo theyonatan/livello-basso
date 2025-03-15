@@ -7,12 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: '*', // Allows all origins; replace with specific origin (e.g., 'https://your-frontend-domain.com') for production
+    origin: '*',
     methods: ['GET', 'POST'],
   }
 });
 
-app.use(cors()); // Enables CORS for all Express routes
+app.use(cors());
 app.use(express.json());
 
 let boards = {};
@@ -21,7 +21,7 @@ function generateId() {
   return Math.random().toString(36).substr(2, 9);
 }
 
-// **Express API Routes**
+// Express API Routes
 app.get('/api/boards', (req, res) => res.json(Object.values(boards)));
 app.post('/api/boards', (req, res) => {
   const board = { _id: generateId(), name: req.body.name, lists: [], members: [], alerts: [] };
@@ -35,7 +35,7 @@ app.put('/api/boards/:id', (req, res) => {
   res.sendStatus(200);
 });
 
-// **Socket.IO Event Handlers**
+// Socket.IO Event Handlers
 io.on('connection', (socket) => {
   socket.on('joinBoard', (boardId) => socket.join(boardId));
   socket.on('leaveBoard', (boardId) => socket.leave(boardId));
@@ -74,6 +74,21 @@ io.on('connection', (socket) => {
     if (!board) return;
     board.alerts.push({ userName, message, timestamp: Date.now() });
     io.to(boardId).emit('boardUpdated', board);
+  });
+  socket.on('addMember', ({ boardId, member }) => {
+    const board = boards[boardId];
+    if (!board) return;
+    board.members.push(member);
+    io.to(boardId).emit('boardUpdated', board);
+  });
+  socket.on('addList', ({ boardId, title }, callback) => {
+    const board = boards[boardId];
+    if (!board) return;
+    const listId = generateId();
+    const newList = { _id: listId, title, cards: [] };
+    board.lists.push(newList);
+    io.to(boardId).emit('boardUpdated', board);
+    if (callback) callback(newList);
   });
 });
 

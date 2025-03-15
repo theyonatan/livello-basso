@@ -91,7 +91,6 @@ function BoardPage({ darkMode, toggleDarkMode }) {
 
     socket.emit('joinBoard', id);
     socket.on('boardUpdated', (newBoard) => {
-      console.log('Received boardUpdated event');
       dispatch({ type: 'SET_BOARD', payload: newBoard });
     });
 
@@ -182,7 +181,8 @@ function ListContainer({ filterMembers, setSelectedCard }) {
 
   const addList = () => {
     if (!userName) return alert('Please enter your name to edit');
-    socket.emit('addList', { boardId: board._id, title: newListTitle || 'New List' }, () => setNewListTitle(''));
+    if (!newListTitle) return alert('Please enter a list title');
+    socket.emit('addList', { boardId: board._id, title: newListTitle }, () => setNewListTitle(''));
   };
 
   return (
@@ -219,7 +219,8 @@ function List({ list, index, setSelectedCard }) {
 
   const addCard = () => {
     if (!userName) return alert('Please enter your name to edit');
-    socket.emit('addCard', { boardId: board._id, listId: list._id, title: newCardTitle || 'New Card' }, () => setNewCardTitle(''));
+    if (!newCardTitle) return alert('Please enter a card title');
+    socket.emit('addCard', { boardId: board._id, listId: list._id, title: newCardTitle }, () => setNewCardTitle(''));
   };
 
   return (
@@ -252,12 +253,6 @@ function List({ list, index, setSelectedCard }) {
 }
 
 function Card({ card, index, setSelectedCard }) {
-  const { socket, board } = useContext(BoardContext);
-
-  const deleteCard = () => {
-    socket.emit('deleteCard', { boardId: board._id, listId: card.listId, cardId: card._id });
-  };
-
   return (
     <Draggable draggableId={card._id} index={index}>
       {(provided) => (
@@ -269,7 +264,6 @@ function Card({ card, index, setSelectedCard }) {
           onClick={() => setSelectedCard(card)}
         >
           {card.title}
-          <button onClick={deleteCard}>X</button>
         </div>
       )}
     </Draggable>
@@ -319,21 +313,16 @@ function MemberEditor() {
 
   const addMember = () => {
     if (!userName) return alert('Please enter your name to edit');
+    if (!newMember) return alert('Please enter a member name');
     socket.emit('addMember', { boardId: board._id, member: newMember });
     setNewMember('');
-  };
-
-  const removeMember = (member) => {
-    socket.emit('removeMember', { boardId: board._id, member });
   };
 
   return (
     <div className="member-editor">
       <h3>Members</h3>
       {board.members.map((m, idx) => (
-        <div key={idx} className="member">
-          {m} <button onClick={() => removeMember(m)}>X</button>
-        </div>
+        <div key={idx} className="member">{m}</div>
       ))}
       <input
         type="text"
@@ -367,6 +356,7 @@ function AlertsTab() {
 
   const addAlert = () => {
     if (!userName) return alert('Please enter your name to post alerts');
+    if (!message) return alert('Please enter a message');
     socket.emit('addAlert', { boardId: board._id, userName, message });
     setMessage('');
   };

@@ -1,293 +1,288 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23000" stroke-width="2"/></svg>');
+  background-repeat: repeat;
+  margin: 0;
+  padding: 0;
+}
+
+.dark body {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23333"/><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23fff" stroke-width="2"/></svg>');
 }
 
 h1, h2, h3, button {
-    font-family: 'Press Start 2P', cursive;
+  font-family: 'Press Start 2P', cursive;
 }
 
 .app {
-    padding: 20px;
+  padding: 20px;
+  min-height: 100vh;
 }
 
 .dark {
-    background-color: #333;
-    color: #fff;
+  background-color: #333;
+  color: #fff;
 }
 
 .home {
-    text-align: center;
+  text-align: center;
 }
 
 .home ul {
-    list-style: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
 }
 
 .home li {
-    cursor: pointer;
-    padding: 10px;
-    background: #fff;
-    margin: 5px 0;
-    border: 2px solid #000;
-    box-shadow: 3px 3px 0 #000;
+  cursor: pointer;
+  padding: 10px;
+  background: #fff;
+  margin: 5px 0;
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0 #000;
 }
 
 .board-page {
-    position: relative;
+  position: relative;
 }
 
 header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 header h1 {
-    color: #ff00ff;
-    text-shadow: 2px 2px 0 #000;
+  color: #ff00ff;
+  text-shadow: 2px 2px 0 #000;
 }
 
 header input[type="text"] {
-    padding: 10px;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 #000;
+  padding: 10px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
 }
 
 .list-container {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    padding-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
 }
 
 .list-container::-webkit-scrollbar {
-    height: 12px;
+  height: 12px;
 }
 
 .list-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  background: #f1f1f1;
 }
 
 .list-container::-webkit-scrollbar-thumb {
-    background: #ff00ff;
-    border-radius: 6px;
+  background: #ff00ff;
+  border-radius: 6px;
 }
 
 .list-container::-webkit-scrollbar-thumb:hover {
-    background: #00ff00;
+  background: #00ff00;
 }
 
 .list {
-    background-color: #fff;
-    border: 2px solid #000;
-    box-shadow: 5px 5px 0 #000;
-    border-radius: 10px;
-    padding: 10px;
-    width: 250px;
-    min-width: 250px;
+  background-color: #fff;
+  border: 2px solid #000;
+  box-shadow: 5px 5px 0 #000;
+  border-radius: 10px;
+  padding: 10px;
+  width: 250px;
+  min-width: 250px;
 }
 
 .list .cards {
-    max-height: 500px;
-    overflow-y: auto;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .list .cards::-webkit-scrollbar {
-    width: 12px;
+  width: 12px;
 }
 
 .list .cards::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  background: #f1f1f1;
 }
 
 .list .cards::-webkit-scrollbar-thumb {
-    background: #ff00ff;
-    border-radius: 6px;
+  background: #ff00ff;
+  border-radius: 6px;
 }
 
 .list .cards::-webkit-scrollbar-thumb:hover {
-    background: #00ff00;
+  background: #00ff00;
 }
 
 .card {
-    background-color: #fff;
-    border: 1px solid #000;
-    box-shadow: 3px 3px 0 #000;
-    padding: 10px;
-    margin: 10px 0;
-    transition: transform 0.2s;
+  background-color: #fff;
+  border: 1px solid #000;
+  box-shadow: 3px 3px 0 #000;
+  padding: 10px;
+  margin: 10px 0;
+  transition: transform 0.2s;
 }
 
 .card:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 button {
-    background-color: #ff00ff;
-    color: #fff;
-    border: 2px solid #000;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: #ff00ff;
+  color: #fff;
+  border: 2px solid #000;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 button:hover {
-    background-color: #00ff00;
+  background-color: #00ff00;
 }
 
 .sidebar {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 250px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 250px;
 }
 
 .member-editor, .filters, .alerts-tab {
-    background-color: #fff;
-    border: 2px solid #000;
-    padding: 10px;
-    box-shadow: 5px 5px 0 #000;
-    margin-bottom: 10px;
+  background-color: #fff;
+  border: 2px solid #000;
+  padding: 10px;
+  box-shadow: 5px 5px 0 #000;
+  margin-bottom: 10px;
 }
 
 .alerts-list {
-    max-height: 200px;
-    overflow-y: auto;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .alerts-list p {
-    margin: 5px 0;
-    padding: 5px;
-    background-color: #f0f0f0;
-    border: 1px solid #000;
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #000;
 }
 
 .alerts-tab input {
-    width: 80%;
-    padding: 5px;
-    border: 1px solid #000;
+  width: 80%;
+  padding: 5px;
+  border: 1px solid #000;
 }
 
 .alerts-tab button {
-    background-color: #00ff00;
-    color: #000;
-    border: 2px solid #000;
-    padding: 5px 10px;
+  background-color: #00ff00;
+  color: #000;
+  border: 2px solid #000;
+  padding: 5px 10px;
 }
 
 .alerts-tab button:hover {
-    background-color: #ff00ff;
+  background-color: #ff00ff;
 }
 
 .member {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
 }
 
 .member input {
-    flex-grow: 1;
-    margin-right: 5px;
-    padding: 5px;
-    border: 1px solid #000;
-}
-
-.member button {
-    background-color: #ff0000;
-    color: #fff;
-    border: 1px solid #000;
-    padding: 5px;
-}
-
-.member button:hover {
-    background-color: #ff6666;
+  flex-grow: 1;
+  margin-right: 5px;
+  padding: 5px;
+  border: 1px solid #000;
 }
 
 .filters select {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #000;
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #000;
 }
 
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
-    background: #fff;
-    padding: 20px;
-    border: 2px solid #000;
-    box-shadow: 5px 5px 0 #000;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
+  background: #fff;
+  padding: 20px;
+  border: 2px solid #000;
+  box-shadow: 5px 5px 0 #000;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .modal-content input,
 .modal-content textarea {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 #000;
-    margin-bottom: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  margin-bottom: 10px;
 }
 
 .dark .modal-content {
-    background: #444;
+  background: #444;
 }
 
 .add-list input {
-    width: 80%;
-    padding: 5px;
-    border: 1px solid #000;
+  width: 80%;
+  padding: 5px;
+  border: 1px solid #000;
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        position: static;
-        width: 100%;
-    }
+  .sidebar {
+    position: static;
+    width: 100%;
+  }
 
-    .list-container {
-        flex-direction: column;
-        overflow-x: visible;
-    }
+  .list-container {
+    flex-direction: column;
+    overflow-x: visible;
+  }
 
-    .list {
-        width: 100%;
-        min-width: 0;
-    }
+  .list {
+    width: 100%;
+    min-width: 0;
+  }
 
-    .modal-content {
-        width: 95%;
-        max-height: 90vh;
-    }
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
 
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    header input,
-    header button {
-        width: 100%;
-        margin: 5px 0;
-    }
+  header input,
+  header button {
+    width: 100%;
+    margin: 5px 0;
+  }
 }
