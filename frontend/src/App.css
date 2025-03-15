@@ -1,73 +1,181 @@
-/* Overall app styling */
-.app {
-  padding: 20px;
-  font-family: sans-serif;
-  background-color: #f7f7f7;
+/* Global Styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
-/* Title styling */
-h1 {
-  text-align: center;
-  color: #555;
-}
-
-/* Board layout */
-.board {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-}
-
-/* Column styling */
-.column {
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  width: 23%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.column h2 {
-  text-align: center;
+/* Light Mode */
+.App {
+  background: #f9f9f9;
   color: #333;
+  padding: 20px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Card styling */
-.cards {
-  margin-bottom: 10px;
+/* Dark Mode */
+.App.dark {
+  background: #333;
+  color: #f9f9f9;
 }
 
-.card {
-  background-color: #fafafa;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px;
-  margin-bottom: 8px;
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.card-header {
+.login input {
+  margin-right: 5px;
+}
+
+/* Board Selector & Backup */
+.board-selector,
+.backup-section,
+.filter-section {
+  margin: 10px 0;
+}
+
+/* Lists Container */
+.lists-container {
+  display: flex;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+/* List Styles */
+.list {
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-right: 10px;
+  width: 250px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background 0.3s ease;
+}
+
+.App.dark .list {
+  background: #444;
+}
+
+/* List Header */
+.list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* Badge styling: white text on a black background */
-.badge {
-  background-color: #000;
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
+/* Cards */
+.cards-container {
+  margin-top: 10px;
 }
 
-/* Button styling */
-button {
-  background: #dcdcdc;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+.card {
+  background: #e0f7fa;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top:0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+}
+
+.App.dark .modal-content {
+  background: #555;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
   cursor: pointer;
 }
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.member-editor, .alerts-tab {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.alerts-tab .alert {
+  background: #fff;
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 5px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Inputs & Buttons */
+input, textarea, select {
+  width: 100%;
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background: #aed581;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 5px;
+}
+
 button:hover {
-  background: #ccc;
+  background: #9ccc65;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .lists-container {
+    flex-direction: column;
+  }
+  .list {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .sidebar {
+    flex-direction: column;
+  }
+  .member-editor, .alerts-tab {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
 }
